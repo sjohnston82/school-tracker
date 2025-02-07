@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   format,
   startOfMonth,
@@ -13,21 +15,21 @@ import {
 } from "date-fns";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-
-const classColors = [
-  "bg-red-400",
-  "bg-blue-400",
-  "bg-green-400",
-  "bg-yellow-400",
-];
+import { useSchoolStore } from "../stores/schoolStore";
 
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [classes, setClasses] = useState<{ name: string; color: string }[]>([]);
   const [newClass, setNewClass] = useState<string>("");
-  const [selectedColor, setSelectedColor] = useState<string>(classColors[0]);
+  const [selectedColor, setSelectedColor] = useState<string>("#000000");
+  const { classes, addClass, fetchClasses, fetchAssignments, assignments } =
+    useSchoolStore();
+
+  useEffect(() => {
+    fetchClasses();
+    fetchAssignments();
+  }, [fetchClasses, fetchAssignments]);
 
   const start = startOfWeek(startOfMonth(currentDate));
   const end = endOfWeek(endOfMonth(currentDate));
@@ -40,45 +42,11 @@ const Calendar: React.FC = () => {
     setModalOpen(true);
   };
 
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const response = await fetch("/api/classes");
-        if (!response.ok) {
-          throw new Error("Failed to fetch classes");
-        }
-        const data = await response.json();
-        setClasses(data);
-      } catch (error) {
-        console.error("Error fetching classes:", error);
-      }
-    };
-
-    fetchClasses();
-  }, []);
-
-  const addClass = async () => {
+  const handleAddClass = () => {
     if (newClass.trim() !== "") {
-      try {
-        const response = await fetch("/api/classes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: newClass, color: selectedColor }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to add class");
-        }
-
-        const savedClass = await response.json();
-        setClasses([...classes, savedClass]);
-
-        // Reset input fields
-        setNewClass("");
-        setSelectedColor(classColors[0]);
-      } catch (error) {
-        console.error("Error adding class:", error);
-      }
+      addClass(newClass, selectedColor);
+      setNewClass("");
+      setSelectedColor("#000000");
     }
   };
 
@@ -98,33 +66,51 @@ const Calendar: React.FC = () => {
             {day}
           </div>
         ))}
-        {days.map((day) => (
-          <div
-            key={day.toString()}
-            className={`p-4 border rounded cursor-pointer ${
-              isSameMonth(day, currentDate) ? "bg-white" : "bg-gray-200"
-            } ${
-              isSameDay(day, selectedDate ?? new Date())
-                ? "border-blue-500"
-                : ""
-            }`}
-            onClick={() => handleDateClick(day)}
-          >
-            {format(day, "d")}
-          </div>
-        ))}
+        {days.map((day) => {
+          const assignmentsForDay = assignments.filter((assignment) =>
+            isSameDay(new Date(assignment.dueDate), day)
+          );
+          return (
+            <div
+              key={day.toString()}
+              className={`relative p-4 border rounded cursor-pointer ${
+                isSameMonth(day, currentDate) ? "bg-white" : "bg-gray-200"
+              } ${
+                isSameDay(day, selectedDate ?? new Date())
+                  ? "border-blue-500"
+                  : ""
+              }`}
+              onClick={() => handleDateClick(day)}
+            >
+              {format(day, "d")}
+              {assignmentsForDay.length > 0 && (
+                <div className="absolute bottom-1 right-1 flex space-x-1">
+                  {assignmentsForDay.map((assignment) => {
+                    const assignmentClass = classes.find(
+                      (cls) => cls.id === assignment.classId
+                    );
+                    return assignmentClass ? (
+                      <span
+                        key={assignment.id}
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: assignmentClass.color }}
+                      ></span>
+                    ) : null;
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {modalOpen && selectedDate && (
-        <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-          <div>
-            <h2 className="text-lg font-bold">
-              Assignments for {format(selectedDate, "MMMM d, yyyy")}
-            </h2>
-            <p>Add or view assignment details here.</p>
-            <Button onClick={() => setModalOpen(false)}>Close</Button>
-          </div>
-        </Modal>
+        <Modal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          selectedDate={selectedDate}
+          setModalOpen={setModalOpen}
+        />
       )}
 
       <div className="mt-4 p-4 border rounded">
@@ -143,12 +129,12 @@ const Calendar: React.FC = () => {
             onChange={(e) => setSelectedColor(e.target.value)}
             className="w-10 h-10 p-1 border rounded"
           />
-          <Button onClick={addClass}>Add Class</Button>
+          <Button onClick={handleAddClass}>Add Class</Button>
         </div>
         <div className="mt-2">
           {classes.map((cls) => (
             <div
-              key={cls.name}
+              key={cls.id}
               className="p-2 rounded mt-1"
               style={{ backgroundColor: cls.color }}
             >
