@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   format,
   startOfMonth,
@@ -39,11 +39,46 @@ const Calendar: React.FC = () => {
     setSelectedDate(date);
     setModalOpen(true);
   };
-  const addClass = () => {
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await fetch("/api/classes");
+        if (!response.ok) {
+          throw new Error("Failed to fetch classes");
+        }
+        const data = await response.json();
+        setClasses(data);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+      }
+    };
+
+    fetchClasses();
+  }, []);
+
+  const addClass = async () => {
     if (newClass.trim() !== "") {
-      setClasses([...classes, { name: newClass, color: selectedColor }]);
-      setNewClass("");
-      setSelectedColor(classColors[0]);
+      try {
+        const response = await fetch("/api/classes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: newClass, color: selectedColor }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to add class");
+        }
+
+        const savedClass = await response.json();
+        setClasses([...classes, savedClass]);
+
+        // Reset input fields
+        setNewClass("");
+        setSelectedColor(classColors[0]);
+      } catch (error) {
+        console.error("Error adding class:", error);
+      }
     }
   };
 
@@ -102,22 +137,21 @@ const Calendar: React.FC = () => {
             placeholder="Class Name"
             className="border p-2 rounded"
           />
-          <select
+          <input
+            type="color"
             value={selectedColor}
             onChange={(e) => setSelectedColor(e.target.value)}
-            className="border p-2 rounded"
-          >
-            {classColors.map((color) => (
-              <option key={color} value={color} className={color}>
-                {color}
-              </option>
-            ))}
-          </select>
+            className="w-10 h-10 p-1 border rounded"
+          />
           <Button onClick={addClass}>Add Class</Button>
         </div>
         <div className="mt-2">
           {classes.map((cls) => (
-            <div key={cls.name} className={`p-2 rounded mt-1 ${cls.color}`}>
+            <div
+              key={cls.name}
+              className="p-2 rounded mt-1"
+              style={{ backgroundColor: cls.color }}
+            >
               {cls.name}
             </div>
           ))}
