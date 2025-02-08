@@ -1,13 +1,17 @@
-"use client"
+"use client";
 
-import Calendar from "@/components/Caldendar";
 import LandingPage from "./landing/LandingPage";
 // import { getUserSession } from "@/lib/session";
 import { useSession } from "next-auth/react";
+import ContentWrapper from "@/components/ContentWrapper";
 
 export default function Home() {
   // const user = await getUserSession();
-   const { data: sessionData } = useSession();
+  const { data: sessionData } = useSession();
 
-  return <>{!sessionData ? <LandingPage /> : <Calendar />}</>;
+  return (
+    <div className="">
+      {!sessionData ? <LandingPage /> : <ContentWrapper />}
+    </div>
+  );
 }

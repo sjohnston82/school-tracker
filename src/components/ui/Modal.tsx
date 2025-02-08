@@ -3,6 +3,8 @@
 import { format, isSameDay } from "date-fns";
 import { useState } from "react";
 import { useSchoolStore } from "../../stores/schoolStore";
+import { useClickOutside } from "@/lib/hooks/useClickOutside";
+import { BsTrash3Fill } from "react-icons/bs";
 
 interface ModalProps {
   isOpen: boolean;
@@ -18,7 +20,13 @@ export const Modal: React.FC<ModalProps> = ({
   setModalOpen,
 }) => {
   const [addingAssignment, setAddingAssignment] = useState<boolean>(false);
-  const { classes, addAssignment, assignments } = useSchoolStore();
+  const { classes, addAssignment, assignments, deleteAssignment } =
+    useSchoolStore();
+
+  const ref = useClickOutside(() => {
+    setModalOpen(false);
+  });
+
   if (!isOpen) return null;
 
   const filteredAssignments = assignments.filter(
@@ -26,9 +34,13 @@ export const Modal: React.FC<ModalProps> = ({
       selectedDate && isSameDay(new Date(assignment.dueDate), selectedDate)
   );
 
+  const handleDelete = async (assignmentId: string) => {
+    await deleteAssignment(assignmentId);
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-[25vw]">
+      <div ref={ref} className="bg-white p-6 rounded-lg shadow-lg w-[25vw]">
         <button
           className="absolute top-2 right-2 text-gray-600 hover:text-black"
           onClick={onClose}
@@ -36,7 +48,7 @@ export const Modal: React.FC<ModalProps> = ({
           &times;
         </button>
         <div>
-          <h2 className="text-lg font-bold">
+          <h2 className="text-lg font-bold text-center">
             Assignments for {format(selectedDate, "MMMM d, yyyy")}
           </h2>
           {/* Assignments List */}
@@ -49,13 +61,23 @@ export const Modal: React.FC<ModalProps> = ({
                   );
                   return (
                     <li key={assignment.id} className="p-2 border rounded mt-2">
-                      <strong>{assignment.title}</strong>
-                      <p>{assignment.description || "No description"}</p>
-                      {assignmentClass && (
-                        <p className="text-sm text-gray-600">
-                          Class: {assignmentClass.name}
-                        </p>
-                      )}
+                      <div className="flex justify-between">
+                        <div className="">
+                          <strong>{assignment.title}</strong>
+                          <p>{assignment.description || "No description"}</p>
+                          {assignmentClass && (
+                            <p className="text-sm text-gray-600">
+                              Class: {assignmentClass.name}
+                            </p>
+                          )}
+                        </div>
+                        <div
+                          className="flex justify-center items-center pr-4 cursor-pointer"
+                          onClick={() => handleDelete(assignment.id)}
+                        >
+                          <BsTrash3Fill size={25} />
+                        </div>
+                      </div>
                     </li>
                   );
                 })}

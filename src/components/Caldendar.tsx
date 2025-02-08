@@ -16,14 +16,14 @@ import {
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { useSchoolStore } from "../stores/schoolStore";
+import { MdAssignment } from "react-icons/md";
 
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [newClass, setNewClass] = useState<string>("");
-  const [selectedColor, setSelectedColor] = useState<string>("#000000");
-  const { classes, addClass, fetchClasses, fetchAssignments, assignments } =
+
+  const { classes, fetchClasses, fetchAssignments, assignments } =
     useSchoolStore();
 
   useEffect(() => {
@@ -42,30 +42,24 @@ const Calendar: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleAddClass = () => {
-    if (newClass.trim() !== "") {
-      addClass(newClass, selectedColor);
-      setNewClass("");
-      setSelectedColor("#000000");
-    }
-  };
-
   return (
-    <div className="w-[75vw] mx-auto p-4">
+    <div className="h-full w-full overflow-hidden flex flex-col pt-[7vh] pb-[7vh]">
       <div className="flex justify-between items-center mb-4">
         <Button onClick={handlePrev}>Previous</Button>
-        <h2 className="text-xl font-bold">
+        <h2 className="text-2xl font-bold">
           {format(currentDate, "MMMM yyyy")}
         </h2>
         <Button onClick={handleNext}>Next</Button>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 text-center">
+      <div className="grid grid-cols-7 gap-2 text-center ">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div key={day} className="font-semibold">
+          <div key={day} className="font-semibold text-xl">
             {day}
           </div>
         ))}
+      </div>
+      <div className="grid grid-cols-7 gap-2 flex-grow overflow-y-auto ">
         {days.map((day) => {
           const assignmentsForDay = assignments.filter((assignment) =>
             isSameDay(new Date(assignment.dueDate), day)
@@ -73,8 +67,8 @@ const Calendar: React.FC = () => {
           return (
             <div
               key={day.toString()}
-              className={`relative p-4 border rounded cursor-pointer ${
-                isSameMonth(day, currentDate) ? "bg-white" : "bg-gray-200"
+              className={`relative p-4 border h-[12vh] shadow-md rounded cursor-pointer   ${
+                isSameMonth(day, currentDate) ? "bg-white" : "bg-gray-300"
               } ${
                 isSameDay(day, selectedDate ?? new Date())
                   ? "border-blue-500"
@@ -82,19 +76,22 @@ const Calendar: React.FC = () => {
               }`}
               onClick={() => handleDateClick(day)}
             >
-              {format(day, "d")}
+              <div className="flex ">
+                <p className="text-3xl">{format(day, "d")}</p>
+              </div>
               {assignmentsForDay.length > 0 && (
                 <div className="absolute bottom-1 right-1 flex space-x-1">
-                  {assignmentsForDay.map((assignment) => {
+                  {assignmentsForDay.map((assignment, index) => {
                     const assignmentClass = classes.find(
                       (cls) => cls.id === assignment.classId
                     );
                     return assignmentClass ? (
-                      <span
-                        key={assignment.id}
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: assignmentClass.color }}
-                      ></span>
+                      <MdAssignment
+                        color={assignmentClass.color}
+                     
+                        size={40}
+                        key={index}
+                      />
                     ) : null;
                   })}
                 </div>
@@ -112,37 +109,6 @@ const Calendar: React.FC = () => {
           setModalOpen={setModalOpen}
         />
       )}
-
-      <div className="mt-4 p-4 border rounded">
-        <h2 className="text-lg font-bold">Manage Classes</h2>
-        <div className="flex items-center space-x-2 mt-2">
-          <input
-            type="text"
-            value={newClass}
-            onChange={(e) => setNewClass(e.target.value)}
-            placeholder="Class Name"
-            className="border p-2 rounded"
-          />
-          <input
-            type="color"
-            value={selectedColor}
-            onChange={(e) => setSelectedColor(e.target.value)}
-            className="w-10 h-10 p-1 border rounded"
-          />
-          <Button onClick={handleAddClass}>Add Class</Button>
-        </div>
-        <div className="mt-2">
-          {classes.map((cls) => (
-            <div
-              key={cls.id}
-              className="p-2 rounded mt-1"
-              style={{ backgroundColor: cls.color }}
-            >
-              {cls.name}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

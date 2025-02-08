@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 
 interface AssignmentRequestBody {
   title: string;
-  classId: string; 
+  classId: string;
   description?: string;
   dueDate: string;
 }
@@ -23,6 +23,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
+    // Convert the dueDate to a Date object
+    const dueDateObj = new Date(dueDate);
+
+    // Get today's date at midnight (ignoring time)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
+
+    // Set the dueDate's time to midnight for comparison
+    const dueDateMidnight = new Date(dueDateObj);
+    dueDateMidnight.setHours(0, 0, 0, 0);
+
+    // Check if the due date is before today
+    if (dueDateMidnight < today) {
+      return NextResponse.json(
+        { error: "Assignments cannot be created with a due date in the past" },
+        { status: 400 }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
@@ -34,7 +53,7 @@ export async function POST(req: Request) {
     const newAssignment = await prisma.assignment.create({
       data: {
         title,
-        dueDate: new Date(dueDate),
+        dueDate: dueDateObj,
         class: {
           connect: { id: classId }, // Connect to the Class using classId
         },
@@ -57,7 +76,6 @@ export async function POST(req: Request) {
     );
   }
 }
-
 
 export async function GET() {
   try {

@@ -23,15 +23,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   const session = await getServerSession(authOptions);
 
   return (
     <html lang="en">
-      <body className={`${roboto.className}  antialiased bg-lighterpurp`}>
+      <body
+        className={`${roboto.className}  antialiased bg-lighterpurp`}
+      >
         <AuthProvider session={session}>
-        <Header />
-        {children}
+          <Header />
+          {children}
         </AuthProvider>
       </body>
     </html>
