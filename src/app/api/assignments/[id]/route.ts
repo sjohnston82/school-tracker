@@ -2,19 +2,17 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { NextRequest } from "next/server";
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest) {
   try {
-    
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const assignmentId = params.id; // Get the assignment ID from the route parameters
+    // Extract the assignment ID from the URL parameters
+    const assignmentId = req.nextUrl.pathname.split("/")[3]; // Accessing the dynamic [id] segment
 
     if (!assignmentId) {
       return NextResponse.json(

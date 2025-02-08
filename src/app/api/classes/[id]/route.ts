@@ -2,18 +2,17 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { NextRequest } from "next/server";
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const classId = params.id; // Get the assignment ID from the route parameters
+    // Extract the class ID from the URL parameters
+    const classId = req.nextUrl.pathname.split("/")[3]; // Accessing the dynamic [id] segment
 
     if (!classId) {
       return NextResponse.json(
@@ -22,7 +21,7 @@ export async function DELETE(
       );
     }
 
-    // Find the assignment to ensure it exists and belongs to the authenticated user
+    // Find the class to ensure it exists and belongs to the authenticated user
     const classToDelete = await prisma.class.findUnique({
       where: { id: classId },
       include: { user: true }, // Include the user to check ownership
@@ -40,18 +39,26 @@ export async function DELETE(
       );
     }
 
-    // Delete the class
-    await prisma.class.delete({
-      where: { id: classId },
+    // Start a transaction to delete assignments and the class
+    await prisma.$transaction(async (prisma) => {
+      // Delete all assignments associated with this class
+      await prisma.assignment.deleteMany({
+        where: { classId: classToDelete.id },
+      });
+
+      // Now delete the class
+      await prisma.class.delete({
+        where: { id: classId },
+      });
     });
 
     return NextResponse.json(
-      { message: "Class deleted successfully" },
+      { message: "Class and associated assignments deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
     console.error(
-      "Error deleting class:",
+      "Error deleting class and assignments:",
       error instanceof Error ? error.message : error
     );
     return NextResponse.json(
