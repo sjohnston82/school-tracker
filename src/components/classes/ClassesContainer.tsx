@@ -5,7 +5,7 @@ import { useSchoolStore } from "../../stores/schoolStore";
 import { ClassModal } from "./ClassModal";
 import ClassInput from "./ClassInput";
 import { Class } from "@prisma/client";
-import { Button } from "../ui/Button";
+// import { Button } from "../ui/Button";
 
 const ClassesContainer = ({}) => {
   const { classes } = useSchoolStore();
@@ -18,16 +18,16 @@ const ClassesContainer = ({}) => {
     setClassModalOpen(true);
   };
 
-  const sendReminderTest = async () => {
-    try {
-      const response = await fetch("api/send-reminders");
-      if (!response.ok) throw new Error("Failed to fetch classes");
+  // const sendReminderTest = async () => {
+  //   try {
+  //     const response = await fetch("api/send-reminders");
+  //     if (!response.ok) throw new Error("Failed to fetch classes");
 
-      // const data = await response.json();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     // const data = await response.json();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   return (
     <div className="flex flex-col items-center w-1/5">
@@ -70,7 +70,7 @@ const ClassesContainer = ({}) => {
         )}
       </div>
 
-      <Button onClick={() => sendReminderTest()}>Test SMS</Button>
+      {/* <Button onClick={() => sendReminderTest()}>Test SMS</Button> */}
     </div>
   );
 };
