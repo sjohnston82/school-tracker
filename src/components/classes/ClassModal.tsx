@@ -3,6 +3,8 @@
 import { useClickOutside } from "@/lib/hooks/useClickOutside";
 import { Class } from "@prisma/client";
 import { useSchoolStore } from "@/stores/schoolStore";
+import { useState } from "react";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 interface IClassModal {
   setClassModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -15,10 +17,13 @@ export const ClassModal: React.FC<IClassModal> = ({
   classModalOpen,
   classInfo,
 }: IClassModal) => {
-  const { assignments, deleteClass } = useSchoolStore();
+  const { assignments } = useSchoolStore();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const ref = useClickOutside(() => {
-    setClassModalOpen(false);
+    if (!confirmDelete) {
+      setClassModalOpen(false);
+    }
   });
 
   if (!classModalOpen) return null;
@@ -36,13 +41,8 @@ export const ClassModal: React.FC<IClassModal> = ({
       (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
     );
 
-  const handleDelete = async (classId: string) => {
-    await deleteClass(classId);
-    setClassModalOpen(false);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-20">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-20">
       <div
         ref={ref}
         className="bg-white p-6 rounded-lg shadow-lg w-[15vw] space-y-4 flex flex-col items-center "
@@ -61,13 +61,20 @@ export const ClassModal: React.FC<IClassModal> = ({
             ))}
           </ul>
           <button
-            onClick={() => handleDelete(classInfo.id)}
+            onClick={() => setConfirmDelete(true)}
             className="bg-red-500 text-white p-3 rounded-lg w-1/2 font-semibold mt-6"
           >
             Delete Class
           </button>
         </div>
       </div>
+      {confirmDelete && (
+        <ConfirmDeleteModal
+          setClassModalOpen={setClassModalOpen}
+          classInfo={classInfo}
+          setConfirmDelete={setConfirmDelete}
+        />
+      )}
     </div>
   );
 };

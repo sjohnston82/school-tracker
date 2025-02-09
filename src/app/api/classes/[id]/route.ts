@@ -11,6 +11,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    
     // Extract the class ID from the URL parameters
     const classId = req.nextUrl.pathname.split("/")[3]; // Accessing the dynamic [id] segment
 
