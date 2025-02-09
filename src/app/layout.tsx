@@ -15,7 +15,11 @@ const roboto = Roboto({
 
 export const metadata: Metadata = {
   title: "Elizabeth's School Tracker",
-  description: "An application to help my wife keep tracker of her school assignments.",
+  description:
+    "An application to help my wife keep tracker of her school assignments.",
+  icons: {
+    icon: "/favicon-32x32.png",
+  },
 };
 
 export default async function RootLayout({
@@ -27,9 +31,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body
-        className={`${roboto.className}  antialiased bg-lighterpurp`}
-      >
+      <body className={`${roboto.className}  antialiased bg-lighterpurp`}>
         <AuthProvider session={session}>
           <Header />
           {children}
