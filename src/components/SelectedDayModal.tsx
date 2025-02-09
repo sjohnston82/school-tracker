@@ -2,9 +2,10 @@
 
 import { format, isSameDay } from "date-fns";
 import { useState } from "react";
-import { useSchoolStore } from "../../stores/schoolStore";
+import { useSchoolStore } from "../stores/schoolStore";
 import { useClickOutside } from "@/lib/hooks/useClickOutside";
 import { BsTrash3Fill } from "react-icons/bs";
+import { Button } from "./ui/Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -13,7 +14,7 @@ interface ModalProps {
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Modal: React.FC<ModalProps> = ({
+export const SelectedDayModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   selectedDate,
@@ -40,27 +41,30 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div ref={ref} className="bg-white p-6 rounded-lg shadow-lg w-[25vw]">
+      <div
+        ref={ref}
+        className="bg-white p-6 rounded-lg shadow-lg w-[25vw] flex flex-col justify-center items-center "
+      >
         <button
           className="absolute top-2 right-2 text-gray-600 hover:text-black"
           onClick={onClose}
         >
           &times;
         </button>
-        <div>
+        <div className="flex flex-col items-center gap-8">
           <h2 className="text-lg font-bold text-center">
             Assignments for {format(selectedDate, "MMMM d, yyyy")}
           </h2>
           {/* Assignments List */}
-          <div>
+          <div className="flex w-full">
             {filteredAssignments.length > 0 ? (
-              <ul>
+              <ul className="w-full">
                 {filteredAssignments.map((assignment) => {
                   const assignmentClass = classes.find(
                     (cls) => cls.id === assignment.classId
                   );
                   return (
-                    <li key={assignment.id} className="p-2 border rounded mt-2">
+                    <li key={assignment.id} className="p-2 border rounded mt-2 ">
                       <div className="flex justify-between">
                         <div className="">
                           <strong>{assignment.title}</strong>
@@ -87,12 +91,6 @@ export const Modal: React.FC<ModalProps> = ({
             )}
             {/* Add Assignment Form */}
           </div>
-
-          {!addingAssignment && (
-            <button onClick={() => setAddingAssignment(true)}>
-              Add New Assignment
-            </button>
-          )}
 
           {addingAssignment && (
             <form
@@ -145,10 +143,15 @@ export const Modal: React.FC<ModalProps> = ({
               <button type="submit">Save Assignment</button>
             </form>
           )}
+          <div className="flex gap-4">
+            {!addingAssignment && (
+              <Button onClick={() => setAddingAssignment(true)}>
+                Add New Assignment
+              </Button>
+            )}
 
-          <button onClick={() => setModalOpen(false)} className="mt-4">
-            Close
-          </button>
+            <Button onClick={() => setModalOpen(false)}>Close</Button>
+          </div>
         </div>
       </div>
     </div>

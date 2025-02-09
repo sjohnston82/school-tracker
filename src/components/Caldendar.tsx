@@ -13,7 +13,7 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import { Modal } from "@/components/ui/Modal";
+import { SelectedDayModal } from "@/components/SelectedDayModal";
 import { Button } from "@/components/ui/Button";
 import { useSchoolStore } from "../stores/schoolStore";
 import { MdAssignment } from "react-icons/md";
@@ -43,7 +43,7 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="h-full w-full overflow-hidden flex flex-col pt-[7vh] pb-[7vh]">
+    <div className="h-full w-full overflow-hidden flex flex-col flex-grow  pb-[14vh]">
       <div className="flex justify-between items-center mb-4">
         <Button onClick={handlePrev}>Previous</Button>
         <h2 className="text-2xl font-bold">
@@ -88,7 +88,6 @@ const Calendar: React.FC = () => {
                     return assignmentClass ? (
                       <MdAssignment
                         color={assignmentClass.color}
-                     
                         size={40}
                         key={index}
                       />
@@ -99,10 +98,11 @@ const Calendar: React.FC = () => {
             </div>
           );
         })}
+        <p className="text-lighterpurp text-center">I love you</p>
       </div>
 
       {modalOpen && selectedDate && (
-        <Modal
+        <SelectedDayModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           selectedDate={selectedDate}
