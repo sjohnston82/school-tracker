@@ -33,7 +33,7 @@ const ClassesContainer = ({}) => {
     <div className="flex flex-col items-center w-1/5">
       <ClassInput />
       <div className=" border rounded">
-        <h2 className="text-lg font-bold text-center my-4">Manage Classes</h2>
+        <h2 className="text-lg font-bold text-center my-4">Your Classes</h2>
 
         <div className=" flex flex-col  gap-4">
           {classes.map((cls) => {

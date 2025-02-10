@@ -13,7 +13,7 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import { SelectedDayModal } from "@/components/SelectedDayModal";
+import { SelectedDayModal } from "@/components/assignments/SelectedDayModal";
 import { Button } from "@/components/ui/Button";
 import { useSchoolStore } from "../stores/schoolStore";
 import { MdAssignment } from "react-icons/md";

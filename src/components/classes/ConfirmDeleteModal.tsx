@@ -2,6 +2,7 @@ import React from "react";
 import { useSchoolStore } from "@/stores/schoolStore";
 import { Class } from "@prisma/client";
 import { useClickOutside } from "@/lib/hooks/useClickOutside";
+import { Button } from "../ui/Button";
 
 interface IConfirmDeleteModal {
   setClassModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -38,13 +39,13 @@ const ConfirmDeleteModal = ({
         ref={ref}
         className="bg-white p-6 rounded-lg shadow-lg w-[15vw] space-y-4 flex flex-col items-center"
       >
-        <p className="text-center">
+        <p className="text-center font-bold">
           Are you sure you want to delete this class?
         </p>
-        <p className="">
+        <p className="text-center text-sm">
           All assignments associated with this class will also be deleted.
         </p>
-        <div className="flex justify-around">
+        <div className="flex justify-between gap-4">
           <button
             className="bg-red-500 text-white px-4 py-2 rounded-lg z-50"
             onClick={(e) => {
@@ -56,7 +57,7 @@ const ConfirmDeleteModal = ({
             Yes, Delete
           </button>
 
-          <button className="" onClick={() => setConfirmDelete(false)}>No</button>
+          <Button onClick={() => setConfirmDelete(false)}>No</Button>
         </div>
       </div>
     </div>

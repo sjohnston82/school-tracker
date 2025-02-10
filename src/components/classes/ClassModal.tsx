@@ -49,9 +49,11 @@ export const ClassModal: React.FC<IClassModal> = ({
       >
         <h1 className="text-center text-3xl text-black">{classInfo.name}</h1>
         <div className="w-full flex flex-col items-center">
-          <h2 className="text-center font-semibold text-xl">
-            Upcoming Assignments
-          </h2>
+          {futureAssignments.length > 0 ? (
+            <h2 className="text-center font-semibold text-xl">
+              Upcoming Assignments
+            </h2>
+          ) : (<p className="">No upcoming assignments in this class.</p>)}
           <ul className="text-center">
             {futureAssignments.map((assignment) => (
               <li key={assignment.id}>
