@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import nodemailer from "nodemailer";
 
 export async function GET() {
-  const phoneEmail = process.env.ELIZABETH_PHONE + "@txt.att.net"; // AT&T SMS gateway
+  const phoneEmail = `${process.env.ELIZABETH_PHONE}@txt.att.net`; // AT&T SMS gateway
   const hoursBeforeDue = 24;
 
   const now = new Date();
