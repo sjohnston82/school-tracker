@@ -1,6 +1,6 @@
 "use client";
 
-import LandingPage from "./landing/LandingPage";
+import LandingPage from "../components/LandingPage";
 // import { getUserSession } from "@/lib/session";
 import { useSession } from "next-auth/react";
 import ContentWrapper from "@/components/ContentWrapper";

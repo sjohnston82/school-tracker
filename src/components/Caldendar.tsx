@@ -17,13 +17,14 @@ import { SelectedDayModal } from "@/components/assignments/SelectedDayModal";
 import { Button } from "@/components/ui/Button";
 import { useSchoolStore } from "../stores/schoolStore";
 import { MdAssignment } from "react-icons/md";
+import Loader from "./ui/Loader";
 
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  const { classes, fetchClasses, fetchAssignments, assignments } =
+  const { classes, fetchClasses, fetchAssignments, assignments, isLoadingAssignments } =
     useSchoolStore();
 
   useEffect(() => {
@@ -43,7 +44,7 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="h-full w-full overflow-hidden flex flex-col flex-grow  pb-[14vh]">
+    <div className="h-full w-full  flex flex-col flex-grow  pb-[10vh]">
       <div className="flex justify-between items-center mb-4">
         <Button onClick={handlePrev}>Previous</Button>
         <h2 className="text-2xl font-bold">
@@ -59,7 +60,7 @@ const Calendar: React.FC = () => {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-2 flex-grow overflow-y-auto ">
+      {isLoadingAssignments ? <Loader /> : <div className="grid grid-cols-7 gap-2 flex-grow overflow-y-auto ">
         {days.map((day) => {
           const assignmentsForDay = assignments.filter((assignment) =>
             isSameDay(new Date(assignment.dueDate), day)
@@ -99,7 +100,7 @@ const Calendar: React.FC = () => {
           );
         })}
         <p className="text-lighterpurp text-center">I love you</p>
-      </div>
+      </div>}
 
       {modalOpen && selectedDate && (
         <SelectedDayModal

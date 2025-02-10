@@ -28,13 +28,20 @@ interface StoreState {
     classId: string,
     description?: string
   ) => Promise<void>;
+  isLoadingClasses: boolean;
+  isLoadingAssignments: boolean;
 }
 
 export const useSchoolStore = create<StoreState>((set) => ({
   classes: [],
   assignments: [],
 
+  isLoadingClasses: false,
+  isLoadingAssignments: false,
+
   fetchAssignments: async () => {
+    set({ isLoadingAssignments: true });
+
     try {
       const response = await fetch("/api/assignments");
       if (!response.ok) throw new Error("Failed to fetch assignments");
@@ -43,6 +50,8 @@ export const useSchoolStore = create<StoreState>((set) => ({
       set({ assignments: data });
     } catch (error) {
       console.error("Error fetching assignments:", error);
+    } finally {
+      set({ isLoadingAssignments: false });
     }
   },
 
@@ -68,6 +77,8 @@ export const useSchoolStore = create<StoreState>((set) => ({
   },
 
   fetchClasses: async () => {
+    set({ isLoadingClasses: true });
+
     try {
       const response = await fetch("/api/classes");
       if (!response.ok) throw new Error("Failed to fetch classes");
@@ -76,6 +87,8 @@ export const useSchoolStore = create<StoreState>((set) => ({
       set({ classes: data });
     } catch (error) {
       console.error("Error fetching classes:", error);
+    } finally {
+      set({ isLoadingClasses: false });
     }
   },
 
