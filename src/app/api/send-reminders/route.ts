@@ -66,7 +66,7 @@ interface TextBeltResponse {
   error?: string;
 }
 
-export async function GET() {
+export async function POST() {
   try {
     const phoneNumber = process.env.ELIZABETH_PHONE;
     if (!phoneNumber) {
